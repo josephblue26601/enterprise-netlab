@@ -1,0 +1,24 @@
+# Devices are reached over SSH on the containerlab management network.
+defaults:
+  username: netadmin
+  password_env: NETADMIN_PASS      # export NETADMIN_PASS=Lab@dmin123
+  device_type: linux               # FRR on Linux; commands go through vtysh
+
+devices:
+  - name: hq-rtr
+    host: 172.20.20.11
+    role: hq-router
+  - name: br-rtr
+    host: 172.20.20.12
+    role: branch-router
+
+# Reachability targets for the health check
+ping_targets:
+  - {name: hq-loopback, ip: 10.0.0.1}
+  - {name: br-loopback, ip: 10.0.0.2}
+  - {name: dns-server, ip: 10.10.20.10}
+  - {name: internet, ip: 8.8.8.8}
+
+expected:
+  ospf_neighbors: {hq-rtr: 2, br-rtr: 2}
+  bgp_established: {hq-rtr: 1}

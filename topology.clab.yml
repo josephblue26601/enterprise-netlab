@@ -1,0 +1,124 @@
+# Multi-Site Enterprise Network Lab
+# Deploy:  sudo containerlab deploy -t topology.clab.yml
+# Destroy: sudo containerlab destroy -t topology.clab.yml --cleanup
+name: netlab
+
+mgmt:
+  network: clab-mgmt
+  ipv4-subnet: 172.20.20.0/24
+
+topology:
+  defaults:
+    env:
+      TZ: America/Chicago
+
+  kinds:
+    linux:
+      image: ghcr.io/hellt/network-multitool:latest
+
+  nodes:
+    # ---------------- ISP ----------------
+    isp:
+      kind: linux
+      image: quay.io/frrouting/frr:9.1.0
+      mgmt-ipv4: 172.20.20.10
+      binds:
+        - configs/isp/frr.conf:/etc/frr/frr.conf
+        - configs/common/daemons:/etc/frr/daemons
+        - configs/isp/init.sh:/init.sh
+      exec:
+        - sh /init.sh
+
+    # ---------------- HQ ----------------
+    hq-rtr:
+      kind: linux
+      image: quay.io/frrouting/frr:9.1.0
+      mgmt-ipv4: 172.20.20.11
+      binds:
+        - configs/hq-rtr/frr.conf:/etc/frr/frr.conf
+        - configs/common/daemons:/etc/frr/daemons
+        - configs/hq-rtr/init.sh:/init.sh
+        - configs/hq-rtr/dnsmasq.conf:/etc/dnsmasq.conf
+        - configs/common/security.sh:/security.sh
+      exec:
+        - sh /init.sh
+
+    hq-sw:
+      kind: linux
+      image: alpine:3.19
+      mgmt-ipv4: 172.20.20.21
+      binds:
+        - configs/hq-sw/init.sh:/init.sh
+      exec:
+        - sh /init.sh
+
+    hq-user1:
+      kind: linux
+      mgmt-ipv4: 172.20.20.31
+      exec:
+        - sh -c "udhcpc -i eth1 -q -n || true"
+
+    hq-srv1:
+      kind: linux
+      mgmt-ipv4: 172.20.20.32
+      binds:
+        - configs/hq-srv1/init.sh:/init.sh
+        - configs/hq-srv1/dnsmasq.conf:/etc/dnsmasq.conf
+      exec:
+        - sh /init.sh
+
+    hq-guest1:
+      kind: linux
+      mgmt-ipv4: 172.20.20.33
+      exec:
+        - sh -c "udhcpc -i eth1 -q -n || true"
+
+    # ---------------- BRANCH ----------------
+    br-rtr:
+      kind: linux
+      image: quay.io/frrouting/frr:9.1.0
+      mgmt-ipv4: 172.20.20.12
+      binds:
+        - configs/br-rtr/frr.conf:/etc/frr/frr.conf
+        - configs/common/daemons:/etc/frr/daemons
+        - configs/br-rtr/init.sh:/init.sh
+        - configs/br-rtr/dnsmasq.conf:/etc/dnsmasq.conf
+        - configs/common/security.sh:/security.sh
+      exec:
+        - sh /init.sh
+
+    br-sw:
+      kind: linux
+      image: alpine:3.19
+      mgmt-ipv4: 172.20.20.22
+      binds:
+        - configs/br-sw/init.sh:/init.sh
+      exec:
+        - sh /init.sh
+
+    br-user1:
+      kind: linux
+      mgmt-ipv4: 172.20.20.41
+      exec:
+        - sh -c "udhcpc -i eth1 -q -n || true"
+
+    br-guest1:
+      kind: linux
+      mgmt-ipv4: 172.20.20.42
+      exec:
+        - sh -c "udhcpc -i eth1 -q -n || true"
+
+  links:
+    # WAN / ISP
+    - endpoints: ["hq-rtr:eth1", "isp:eth1"]          # 203.0.113.0/30 (eBGP)
+    - endpoints: ["hq-rtr:eth2", "br-rtr:eth1"]       # 10.255.0.0/30 primary WAN (OSPF cost 10)
+    - endpoints: ["hq-rtr:eth4", "br-rtr:eth3"]       # 10.255.0.4/30 backup WAN (OSPF cost 100)
+    # HQ LAN
+    - endpoints: ["hq-rtr:eth3", "hq-sw:eth1"]        # 802.1Q trunk
+    - endpoints: ["hq-sw:eth2", "hq-user1:eth1"]      # VLAN 10
+    - endpoints: ["hq-sw:eth3", "hq-srv1:eth1"]       # VLAN 20
+    - endpoints: ["hq-sw:eth4", "hq-guest1:eth1"]     # VLAN 30
+    # Branch LAN
+    - endpoints: ["br-rtr:eth2", "br-sw:eth1"]        # 802.1Q trunk
+    - endpoints: ["br-sw:eth2", "br-user1:eth1"]      # VLAN 10
+    - endpoints: ["br-sw:eth3", "br-guest1:eth1"]     # VLAN 30

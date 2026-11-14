@@ -1,0 +1,30 @@
+{
+  "title": "Netlab Overview",
+  "uid": "netlab",
+  "refresh": "15s",
+  "time": {"from": "now-30m", "to": "now"},
+  "schemaVersion": 39,
+  "panels": [
+    {"type": "stat", "title": "Devices Up", "gridPos": {"x": 0, "y": 0, "w": 6, "h": 4},
+     "datasource": {"uid": "prom"},
+     "targets": [{"expr": "sum(netlab_device_up)"}]},
+    {"type": "stat", "title": "OSPF Neighbors Full", "gridPos": {"x": 6, "y": 0, "w": 6, "h": 4},
+     "datasource": {"uid": "prom"},
+     "targets": [{"expr": "netlab_ospf_neighbors_full", "legendFormat": "{{device}}"}]},
+    {"type": "stat", "title": "BGP Peers Established", "gridPos": {"x": 12, "y": 0, "w": 6, "h": 4},
+     "datasource": {"uid": "prom"},
+     "targets": [{"expr": "netlab_bgp_peers_established", "legendFormat": "{{device}}"}]},
+    {"type": "stat", "title": "Routes in RIB", "gridPos": {"x": 18, "y": 0, "w": 6, "h": 4},
+     "datasource": {"uid": "prom"},
+     "targets": [{"expr": "netlab_route_count", "legendFormat": "{{device}}"}]},
+    {"type": "timeseries", "title": "Ping RTT (ms, -1 = down)", "gridPos": {"x": 0, "y": 4, "w": 12, "h": 9},
+     "datasource": {"uid": "prom"},
+     "targets": [{"expr": "netlab_ping_rtt_ms", "legendFormat": "{{device}} → {{target}}"}]},
+    {"type": "state-timeline", "title": "WAN Link State", "gridPos": {"x": 12, "y": 4, "w": 12, "h": 9},
+     "datasource": {"uid": "prom"},
+     "targets": [{"expr": "netlab_wan_link_up", "legendFormat": "{{device}} {{interface}}"}]},
+    {"type": "timeseries", "title": "OSPF Neighbors Over Time", "gridPos": {"x": 0, "y": 13, "w": 24, "h": 7},
+     "datasource": {"uid": "prom"},
+     "targets": [{"expr": "netlab_ospf_neighbors_full", "legendFormat": "{{device}}"}]}
+  ]
+}
