@@ -2,7 +2,7 @@
 
 ```mermaid
 flowchart TB
-    INET(("Internet<br/>8.8.8.8 · 198.51.100.0/24"))
+    INET(("Internet<br/>198.51.100.0/24"))
     ISP["isp<br/>AS 65000"]
     INET --- ISP
     ISP ---|"eBGP · 203.0.113.0/30"| HQR

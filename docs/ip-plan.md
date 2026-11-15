@@ -5,7 +5,7 @@
 |---|---|---|---|---|
 | HQ | hq-rtr | 10.0.0.1/32 | 0 | 65001 |
 | Branch | br-rtr | 10.0.0.2/32 | 0 | — |
-| ISP | isp | 8.8.8.8/32 | — | 65000 |
+| ISP | isp | 198.51.100.1/32 | — | 65000 |
 
 ## VLANs
 | VLAN | Name | HQ Subnet | Branch Subnet | Gateway | DHCP Pool |
@@ -26,7 +26,7 @@
 | Host | IP | Role |
 |---|---|---|
 | hq-srv1 | 10.10.20.10 | Internal DNS (lab.internal) |
-| 198.51.100.0/24, 8.8.8.8 | — | Simulated internet (ISP loopbacks) |
+| 198.51.100.0/24 | — | Simulated internet (ISP loopbacks) |
 
 ## Management (out-of-band, containerlab)
 172.20.20.0/24 — isp .10, hq-rtr .11, br-rtr .12, switches .21–.22, hosts .31+

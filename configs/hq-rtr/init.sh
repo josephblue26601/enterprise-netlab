@@ -16,3 +16,7 @@ iptables -t nat -A POSTROUTING -o eth1 -s 10.0.0.0/8 -j MASQUERADE
 dnsmasq --conf-file=/etc/dnsmasq.conf
 
 SITE_GUEST=10.10.30.0/24 sh /security.sh
+
+# Packages are installed; drop the Docker mgmt default so OSPF/BGP pick the path.
+# (mgmt 172.20.20.0/24 stays reachable as a connected route)
+ip route del default via 172.20.20.1 dev eth0 2>/dev/null || true
