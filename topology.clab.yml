@@ -57,6 +57,7 @@ topology:
       mgmt-ipv4: 172.20.20.31
       exec:
         - sh -c "sleep 15; udhcpc -i eth1 -t 10 -T 3 -q -n || echo DHCP-FAILED"
+        - sh -c "for n in 10.0.0.0/8 198.51.100.0/24 203.0.113.0/24; do ip route replace $n via 10.10.10.1 dev eth1; done"
 
     hq-srv1:
       kind: linux
@@ -73,6 +74,7 @@ topology:
       mgmt-ipv4: 172.20.20.33
       exec:
         - sh -c "sleep 15; udhcpc -i eth1 -t 10 -T 3 -q -n || echo DHCP-FAILED"
+        - sh -c "for n in 10.0.0.0/8 198.51.100.0/24 203.0.113.0/24; do ip route replace $n via 10.10.30.1 dev eth1; done"
 
     # ---------------- BRANCH ----------------
     br-rtr:
@@ -102,12 +104,14 @@ topology:
       mgmt-ipv4: 172.20.20.41
       exec:
         - sh -c "sleep 15; udhcpc -i eth1 -t 10 -T 3 -q -n || echo DHCP-FAILED"
+        - sh -c "for n in 10.0.0.0/8 198.51.100.0/24 203.0.113.0/24; do ip route replace $n via 10.20.10.1 dev eth1; done"
 
     br-guest1:
       kind: linux
       mgmt-ipv4: 172.20.20.42
       exec:
         - sh -c "sleep 15; udhcpc -i eth1 -t 10 -T 3 -q -n || echo DHCP-FAILED"
+        - sh -c "for n in 10.0.0.0/8 198.51.100.0/24 203.0.113.0/24; do ip route replace $n via 10.20.30.1 dev eth1; done"
 
   links:
     # WAN / ISP
