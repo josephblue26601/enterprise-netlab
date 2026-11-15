@@ -28,7 +28,7 @@ Docs: [Architecture](docs/architecture.md) · [IP plan](docs/ip-plan.md) · [Inc
 ```bash
 git clone https://github.com/<you>/enterprise-netlab && cd enterprise-netlab
 make deploy                       # build the network (~1 min)
-make verify                       # 13 functional checks: DHCP, DNS, OSPF, NAT, ACLs
+make verify                       # 14 functional checks: DHCP, DNS, OSPF, NAT, ACLs
 pip install -r automation/requirements.txt
 export NETADMIN_PASS='Lab@dmin123'
 make health                       # writes reports/health-*.md
@@ -49,7 +49,13 @@ docker exec clab-netlab-hq-rtr iptables -L GUEST-ACL -v -n   # ACL hit counters
 ```
 
 ## Results
-_Add your screenshots after running it: Grafana during failover, `make verify` output, health report._
+**All 14 functional checks pass** (`make verify`):
+
+![verify results](docs/img/verify-results.png)
+
+**WAN failover: 0 packets lost.** The primary HQ↔Branch link was cut during a continuous ping (150 packets, 200 ms apart). OSPF moved traffic to the backup link (metric 20 → 110) and moved it back when the link was restored. Full write-up: [incident report](docs/incident-report-wan-failover.md).
+
+![failover test](docs/img/failover-test.png)
 
 ## Skills demonstrated
 OSPF design & path selection · BGP with prefix filtering · NAT/PAT · 802.1Q VLANs · DHCP/DNS · ACLs & management-plane hardening · Python network automation (Netmiko) · config management in Git · Prometheus/Grafana observability · failure testing & incident writing
